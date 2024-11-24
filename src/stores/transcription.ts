@@ -81,6 +81,7 @@ export const useTranscriptionStore = defineStore('transcription', () => {
   const selectedAnalysis = ref<string[]>([]);
   const analysisResults = ref<AnalysisResult[]>([]);
   const showAnalysisPopup = ref(false);
+  const customPrompts = ref<string[]>([]);
 
   const setLoading = (value: boolean) => {
     loading.value = value;
@@ -102,14 +103,25 @@ export const useTranscriptionStore = defineStore('transcription', () => {
     showAnalysisPopup.value = !showAnalysisPopup.value;
   };
 
+  const addCustomPrompt = (prompt: string) => {
+    customPrompts.value.push(prompt);
+  };
+
+  const removeCustomPrompt = (index: number) => {
+    customPrompts.value.splice(index, 1);
+  };
+
   const fetchAnalysis = async (token: string) => {
     const selectedTypes = ANALYSIS_TYPES.filter(type => 
       selectedAnalysis.value.includes(type.label)
     );
 
-    const combinedPrompt = selectedTypes.map(type => 
-      `${type.label}:\n${type.prompt}\n`
-    ).join('\n');
+    const prompts = [
+      ...selectedTypes.map(type => `${type.label}:\n${type.prompt}`),
+      ...customPrompts.value.map((prompt, index) => `Custom Analysis ${index + 1}:\n${prompt}`)
+    ];
+
+    const combinedPrompt = prompts.join('\n\n');
 
     try {
       const response = await axios.post(
@@ -162,11 +174,14 @@ export const useTranscriptionStore = defineStore('transcription', () => {
     selectedAnalysis,
     analysisResults,
     showAnalysisPopup,
+    customPrompts,
     setLoading,
     setTranscriptionId,
     setTranscriptionResult,
     setSelectedAnalysis,
     fetchAnalysis,
-    toggleAnalysisPopup
+    toggleAnalysisPopup,
+    addCustomPrompt,
+    removeCustomPrompt
   };
 });
