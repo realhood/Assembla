@@ -2,7 +2,7 @@
 
 # 🎙️ Assembla: Say It. Hear It. Own It.
 
-Welcome to **Assembla**, the next-gen voice transcription app that turns your words into action. Built for the **"No More Monkey Business"** challenge, this app is all about making your audio work smarter, not harder. 🦾
+Welcome to **Assembla**, the next-gen voice transcription app that turns your words into action. Built for the [**"No More Monkey Business"** challenge](https://dev.to/challenges/assemblyai), this app is all about making your audio work smarter, not harder. 🦾
 
 ## 🌐 Check It Out Live!
 
