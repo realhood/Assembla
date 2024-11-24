@@ -1,13 +1,12 @@
 # 🎙️ Assembla: Say It. Hear It. Own It.  
 
-Welcome to **Assembla**, the next-gen voice transcription app that turns your words into action. Built for the **"No More Monkey Business"** challenge by AssemblyAI, this app is all about making your audio work smarter, not harder. 🦾  
+Welcome to **Assembla**, the next-gen voice transcription app that turns your words into action. Built for the **"No More Monkey Business"** challenge, this app is all about making your audio work smarter, not harder. 🦾  
 
 ## 🪩 Why Assembla Slaps  
 
 - **🎧 Audio to Text Magic**: Upload your voice, and *poof*, you’ve got text.  
-- **🤖 Big Brain Insights**: Summaries? Keywords? Vibes (sentiments)? We got you.  
 - **✨ Clean & Easy Vibes**: No clutter, no drama—just a sleek interface.  
-- **⚡ Speed Demon**: Powered by AssemblyAI’s LeMUR API. Fast, smooth, and always on point.  
+- **⚡ Speed Demon**: Runs fast, looks great, works even better.  
 
 ---
 
@@ -17,7 +16,6 @@ Welcome to **Assembla**, the next-gen voice transcription app that turns your wo
 
 - Your browser (duh).  
 - [Node.js](https://nodejs.org/) (you’ll need it to run stuff).  
-- An AssemblyAI API key. Don’t have one? Get it 👉 [here](https://www.assemblyai.com).  
 
 ---
 
@@ -34,19 +32,12 @@ Welcome to **Assembla**, the next-gen voice transcription app that turns your wo
    npm install
    ```
 
-3. **Plug in your API key**:  
-   - Create a `.env` file.  
-   - Drop this in:  
-     ```env
-     VITE_ASSEMBLYAI_API_KEY=your_api_key_here
-     ```  
-
-4. **Run it like a pro**:  
+3. **Run it like a pro**:  
    ```bash
    npm run dev
    ```  
 
-5. **Hit it up in your browser**:  
+4. **Hit it up in your browser**:  
    Open `http://localhost:3000` and vibe with it.  
 
 ---
@@ -54,7 +45,7 @@ Welcome to **Assembla**, the next-gen voice transcription app that turns your wo
 ## 🛠️ How To Use  
 
 1. **Upload Your Audio**: Drag. Drop. Done.  
-2. **Watch the Magic**: Transcriptions and insights, fresh and flawless.  
+2. **Watch the Magic**: Transcriptions ready in no time.  
 3. **Save It, Share It, Brag About It**: Download or share your results.  
 
 ---
@@ -62,7 +53,6 @@ Welcome to **Assembla**, the next-gen voice transcription app that turns your wo
 ## ✨ Why You'll Stan Assembla  
 
 - **🙌 No Monkey Business**: Get it done without the fuss.  
-- **🌟 More Than Words**: Summaries, emotions, and everything in between.  
 - **🎨 Gen Z Approved Design**: Sleek, modern, and aesthetic AF.  
 
 ---
@@ -71,7 +61,6 @@ Welcome to **Assembla**, the next-gen voice transcription app that turns your wo
 
 - **Frontend**: Vue.js + Vite (aka the dream team).  
 - **Styling**: TailwindCSS (for all the pretty).  
-- **API Power**: AssemblyAI’s LeMUR (big AI energy).  
 
 ---
 
