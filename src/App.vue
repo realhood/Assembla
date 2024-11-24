@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import AudioRecorder from './components/AudioRecorder.vue';
 import TranscriptionResult from './components/TranscriptionResult.vue';
 import TokenInput from './components/TokenInput.vue';
+import AnalysisPopup from './components/AnalysisPopup.vue';
 import { useToast } from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
 
@@ -31,8 +32,10 @@ const handleTokenSubmit = (newToken: string) => {
 
       <div v-else class="space-y-8">
         <AudioRecorder :assembly-ai-token="token" />
-        <TranscriptionResult />
+        <TranscriptionResult :assembly-ai-token="token" />
       </div>
     </div>
+
+    <AnalysisPopup />
   </div>
 </template>

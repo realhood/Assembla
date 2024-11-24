@@ -10,8 +10,8 @@ const props = defineProps<{
   assemblyAiToken: string;
 }>();
 
-const $toast = useToast();
 const store = useTranscriptionStore();
+const $toast = useToast();
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const isRecording = ref(false);
 const audioChunks = ref<Blob[]>([]);
@@ -139,6 +139,7 @@ const checkTranscriptionStatus = async () => {
       $toast.success('Transcription completed!');
     } else if (response.data.status === 'error') {
       store.setLoading(false);
+      $toast.error('Transcription failed. Please try again.');
       throw new Error('Transcription failed');
     } else {
       setTimeout(checkTranscriptionStatus, 3000);
@@ -146,7 +147,6 @@ const checkTranscriptionStatus = async () => {
   } catch (error) {
     console.error('Error checking transcription status:', error);
     store.setLoading(false);
-    $toast.error('Transcription failed. Please try again.');
   }
 };
 
@@ -238,6 +238,7 @@ const handleSeekTime = (time: number) => {
     <TranscriptionResult 
       v-if="store.transcriptionResult"
       ref="transcriptionRef"
+      :assembly-ai-token="assemblyAiToken"
       @seek-time="handleSeekTime"
     />
   </div>
