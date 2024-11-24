@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-import WaveSurfer from 'wavesurfer.js';
-import { useTranscriptionStore } from '../stores/transcription';
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import WaveSurfer from "wavesurfer.js";
+import { useTranscriptionStore } from "../stores/transcription";
 
 const props = defineProps<{
   audioBlob?: Blob;
@@ -14,32 +14,43 @@ const isPlaying = ref(false);
 const playbackSpeed = ref(1);
 const emit = defineEmits(['timeUpdate']);
 
+const destroyWavesurfer = () => {
+  if (wavesurfer.value) {
+    wavesurfer.value.destroy();
+    wavesurfer.value = null;
+  }
+};
+
 const createWaveform = async () => {
   if (!waveformRef.value || !props.audioBlob) return;
 
-  if (wavesurfer.value) {
-    wavesurfer.value.destroy();
+  try {
+    // Destroy existing instance before creating a new one
+    destroyWavesurfer();
+
+    wavesurfer.value = WaveSurfer.create({
+      container: waveformRef.value,
+      waveColor: '#8b5cf6',
+      progressColor: '#6366f1',
+      cursorColor: '#f472b6',
+      cursorWidth: 2,
+      height: 100,
+      normalize: true,
+      plugins: []
+    });
+
+    wavesurfer.value.on('play', () => isPlaying.value = true);
+    wavesurfer.value.on('pause', () => isPlaying.value = false);
+    wavesurfer.value.on('timeupdate', (currentTime) => {
+      emit('timeUpdate', currentTime);
+    });
+
+    const audioUrl = URL.createObjectURL(props.audioBlob);
+    await wavesurfer.value.load(audioUrl);
+    URL.revokeObjectURL(audioUrl); // Clean up the URL after loading
+  } catch (error) {
+    console.error('Error creating waveform:', error);
   }
-
-  wavesurfer.value = WaveSurfer.create({
-    container: waveformRef.value,
-    waveColor: '#8b5cf6',
-    progressColor: '#6366f1',
-    cursorColor: '#f472b6',
-    cursorWidth: 2,
-    height: 100,
-    normalize: true,
-    plugins: []
-  });
-
-  const audioUrl = URL.createObjectURL(props.audioBlob);
-  await wavesurfer.value.load(audioUrl);
-
-  wavesurfer.value.on('play', () => isPlaying.value = true);
-  wavesurfer.value.on('pause', () => isPlaying.value = false);
-  wavesurfer.value.on('timeupdate', (currentTime) => {
-    emit('timeUpdate', currentTime);
-  });
 };
 
 const togglePlayPause = () => {
@@ -64,13 +75,13 @@ const setPlaybackSpeed = (speed: number) => {
   }
 };
 
+// Watch for changes in audioBlob and transcription result
 watch(() => props.audioBlob, createWaveform);
 watch(() => store.transcriptionResult, createWaveform);
 
+// Clean up on component unmount
 onBeforeUnmount(() => {
-  if (wavesurfer.value) {
-    wavesurfer.value.destroy();
-  }
+  destroyWavesurfer();
 });
 
 defineExpose({ seekTo });

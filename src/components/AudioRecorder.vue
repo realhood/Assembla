@@ -4,11 +4,13 @@ import axios from 'axios';
 import { useTranscriptionStore } from '../stores/transcription';
 import AudioVisualizer from './AudioVisualizer.vue';
 import TranscriptionResult from './TranscriptionResult.vue';
+import { useToast } from 'vue-toast-notification';
 
 const props = defineProps<{
   assemblyAiToken: string;
 }>();
 
+const $toast = useToast();
 const store = useTranscriptionStore();
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const isRecording = ref(false);
@@ -16,7 +18,7 @@ const audioChunks = ref<Blob[]>([]);
 const selectedFile = ref<File | null>(null);
 const currentAudioBlob = ref<Blob | null>(null);
 const visualizerRef = ref();
-const transcriptionRef = ref(); // Added missing ref
+const transcriptionRef = ref();
 
 const startRecording = async () => {
   try {
@@ -38,6 +40,7 @@ const startRecording = async () => {
     isRecording.value = true;
   } catch (error) {
     console.error('Error accessing microphone:', error);
+    $toast.error('Failed to access microphone. Please check your permissions.');
   }
 };
 
@@ -54,16 +57,36 @@ const handleFileUpload = (event: Event) => {
   if (target.files && target.files[0]) {
     selectedFile.value = target.files[0];
     currentAudioBlob.value = target.files[0];
-    uploadAudio(selectedFile.value);
+    uploadAudio(target.files[0]);
+  }
+};
+
+const loadSampleAudio = async () => {
+  try {
+    $toast.info('Loading sample audio...');
+    const response = await fetch('https://raw.githubusercontent.com/realhood/Assembla/main/public/sample/147849__clairekearns__conversation-ii.mp3');
+    if (!response.ok) throw new Error('Failed to fetch sample audio');
+    
+    const blob = await response.blob();
+    currentAudioBlob.value = blob;
+    uploadAudio(blob);
+  } catch (error) {
+    console.error('Error loading sample audio:', error);
+    $toast.error('Failed to load sample audio. Please try again.');
   }
 };
 
 const uploadAudio = async (audioBlob: Blob) => {
   try {
     store.setLoading(true);
+    $toast.info('Uploading audio...');
     
-    const uploadResponse = await axios.post('https://api.assemblyai.com/v2/upload',
-      audioBlob,
+    // Convert blob to array buffer for upload
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    
+    const uploadResponse = await axios.post(
+      'https://api.assemblyai.com/v2/upload',
+      arrayBuffer,
       {
         headers: {
           'authorization': props.assemblyAiToken,
@@ -72,14 +95,15 @@ const uploadAudio = async (audioBlob: Blob) => {
       }
     );
 
-    const transcriptionResponse = await axios.post('https://api.assemblyai.com/v2/transcript',
+    $toast.success('Audio uploaded successfully. Starting transcription...');
+
+    const transcriptionResponse = await axios.post(
+      'https://api.assemblyai.com/v2/transcript',
       {
         audio_url: uploadResponse.data.upload_url,
         speaker_labels: true,
         auto_chapters: true,
-        auto_highlights: true,
-        word_boost: ["important", "key", "significant", "critical"],
-        boost_param: "high"
+        auto_highlights: true
       },
       {
         headers: {
@@ -94,6 +118,7 @@ const uploadAudio = async (audioBlob: Blob) => {
   } catch (error) {
     console.error('Error uploading audio:', error);
     store.setLoading(false);
+    $toast.error('Failed to upload audio. Please try again.');
   }
 };
 
@@ -111,6 +136,7 @@ const checkTranscriptionStatus = async () => {
     if (response.data.status === 'completed') {
       store.setTranscriptionResult(response.data);
       store.setLoading(false);
+      $toast.success('Transcription completed!');
     } else if (response.data.status === 'error') {
       store.setLoading(false);
       throw new Error('Transcription failed');
@@ -120,6 +146,7 @@ const checkTranscriptionStatus = async () => {
   } catch (error) {
     console.error('Error checking transcription status:', error);
     store.setLoading(false);
+    $toast.error('Transcription failed. Please try again.');
   }
 };
 
@@ -165,18 +192,31 @@ const handleSeekTime = (time: number) => {
             </div>
           </div>
 
-          <label class="mt-6 cursor-pointer inline-flex items-center px-6 py-3 rounded-xl bg-gray-800/50 hover:bg-gray-800 transition-colors duration-300 border border-gray-700 hover:border-purple-500/50">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            Upload Audio File
-            <input
-              type="file"
-              accept="audio/*"
-              class="hidden"
-              @change="handleFileUpload"
+          <div class="mt-6 flex justify-center space-x-4">
+            <label class="cursor-pointer inline-flex items-center px-6 py-3 rounded-xl bg-gray-800/50 hover:bg-gray-800 transition-colors duration-300 border border-gray-700 hover:border-purple-500/50">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Upload Audio File
+              <input
+                type="file"
+                accept="audio/*"
+                class="hidden"
+                @change="handleFileUpload"
+              >
+            </label>
+
+            <button
+              @click="loadSampleAudio"
+              class="inline-flex items-center px-6 py-3 rounded-xl bg-gray-800/50 hover:bg-gray-800 transition-colors duration-300 border border-gray-700 hover:border-purple-500/50"
             >
-          </label>
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Try Sample Audio
+            </button>
+          </div>
         </div>
 
         <AudioVisualizer 
