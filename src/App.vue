@@ -22,7 +22,7 @@ const handleTokenSubmit = (newToken: string) => {
   <div class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100">
     <div class="container mx-auto px-4 py-8">
       <h1 class="text-4xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
-        AI Voice Transcription
+        Assembla: AI Voice Magic
       </h1>
 
       <TokenInput 

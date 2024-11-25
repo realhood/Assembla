@@ -121,7 +121,12 @@ export const useTranscriptionStore = defineStore('transcription', () => {
       ...customPrompts.value.map((prompt, index) => `Custom Analysis ${index + 1}:\n${prompt}`)
     ];
 
-    const combinedPrompt = prompts.join('\n\n');
+    const staticPrompts = [
+      "Provide an analysis for each section with clear section titles.",
+      "If title start with Custom Analysis generate meaningful and clear section title based on context and dont show Custom Analysis in output."
+    ];
+
+    const combinedPrompt = [...staticPrompts, ...prompts].join('\n\n');
 
     try {
       const response = await axios.post(
@@ -129,8 +134,7 @@ export const useTranscriptionStore = defineStore('transcription', () => {
         {
           transcript_ids: [transcriptionId.value],
           final_model: 'anthropic/claude-3-sonnet',
-          prompt: combinedPrompt,
-          answer_format: "Provide analysis for each section with clear section titles.",
+          answer_format: combinedPrompt,
           temperature: 0.3
         },
         {
